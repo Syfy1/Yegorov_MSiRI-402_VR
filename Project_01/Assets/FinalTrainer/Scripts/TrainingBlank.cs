@@ -10,11 +10,12 @@ public class TrainingBlank : MonoBehaviour
 {
     public MachineTrainer trainer;
 
-    // Предмет прикрепляется к руке; другая рука его не перехватывает, пока он удерживается.
+    // Рука ведёт предмет через физику (VelocityMovement), поэтому вал упирается в станок
+    // и не проходит сквозь него; другая рука его не перехватывает, пока он удерживается.
     private const Hand.AttachmentFlags AttachFlags =
-        Hand.AttachmentFlags.ParentToHand |
         Hand.AttachmentFlags.DetachFromOtherHand |
-        Hand.AttachmentFlags.TurnOnKinematic;
+        Hand.AttachmentFlags.VelocityMovement |
+        Hand.AttachmentFlags.TurnOffGravity;
 
     private Interactable interactable;
     private Rigidbody body;
@@ -62,6 +63,8 @@ public class TrainingBlank : MonoBehaviour
 
     private void OnAttachedToHand(Hand hand)
     {
+        // из патрона деталь берётся обычным физическим телом, чтобы рука могла её тянуть
+        body.isKinematic = false;
         IsHeld = true;
         if (trainer != null) trainer.NotifyGrab();
     }
