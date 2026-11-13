@@ -2,7 +2,7 @@ using UnityEngine;
 using Valve.VR.InteractionSystem;
 
 // Ходьба по полу без шлема: W A S D или стрелки, Shift - быстрее,
-// зажатая правая кнопка мыши - поворот головы.
+// Q / E - поворот влево/вправо, зажатая правая кнопка мыши - поворот головы.
 // Висит на камере режима без шлема (FallbackObjects в Player).
 // Когда шлем подключён, этот объект выключен и не мешает VR.
 public class DesktopWalk : MonoBehaviour
@@ -11,6 +11,7 @@ public class DesktopWalk : MonoBehaviour
     public float runSpeed = 3f;        // м/с с Shift
     public float eyeHeight = 1.6f;     // высота глаз над полом, м
     public float bodyRadius = 0.25f;   // радиус «тела» для проверки препятствий, м
+    public float turnSpeed = 90f;      // поворот клавишами Q/E, градусов в секунду
 
     private Vector3 mouseStart;
     private Vector3 angleStart;
@@ -42,6 +43,11 @@ public class DesktopWalk : MonoBehaviour
             p.y = eyeHeight;
             transform.position = p;
         }
+
+        // Поворот влево/вправо клавишами Q и E.
+        float turn = (Input.GetKey(KeyCode.E) ? 1f : 0f) - (Input.GetKey(KeyCode.Q) ? 1f : 0f);
+        if (turn != 0f)
+            transform.Rotate(0f, turn * turnSpeed * Time.deltaTime, 0f, Space.World);
 
         // Поворот: зажать правую кнопку мыши.
         if (Input.GetMouseButtonDown(1))

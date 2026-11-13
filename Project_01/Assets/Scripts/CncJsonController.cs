@@ -17,8 +17,8 @@ public class CncJsonController : MonoBehaviour
     public Transform nodeY;
     public Transform nodeZ;
 
-    // Панель на Canvas для вывода координат (можно не назначать).
-    public CncCoordinatesPanel panel;
+    // Панель станка на Canvas для вывода координат и связи (можно не назначать).
+    public MachinePanel panel;
 
     // Начальные положения узлов в сцене.
     private Vector3 startX;
@@ -26,13 +26,12 @@ public class CncJsonController : MonoBehaviour
     private Vector3 startZ;
     private bool nodesReady;
 
-    // Кнопки «Пуск» и «Стоп» на станке: включают и выключают движение узлов.
+    // Включение и выключение движения узлов модели (кнопки «Пуск» и «Стоп» панели).
     // При остановке узлы возвращаются в исходное положение.
     public void StartMovement()
     {
         if (!nodesReady) return;
         applyMovement = true;
-        if (panel != null) panel.ShowCommand("Пуск: узлы следуют за координатами сервера");
     }
 
     public void StopMovement()
@@ -44,7 +43,6 @@ public class CncJsonController : MonoBehaviour
             nodeY.localPosition = startY;
             nodeZ.localPosition = startZ;
         }
-        if (panel != null) panel.ShowCommand("Стоп: узлы в исходном положении");
     }
 
     private IEnumerator Start()
@@ -83,13 +81,13 @@ public class CncJsonController : MonoBehaviour
                     catch (Exception error)
                     {
                         Debug.LogWarning("Ошибка чтения JSON: " + error.Message);
-                        if (panel != null) panel.ShowError("Ошибка чтения JSON: " + error.Message);
+                        if (panel != null) panel.ShowReadError("Ошибка формата данных");
                     }
                 }
                 else
                 {
                     Debug.LogWarning("HTTP " + request.responseCode + ": " + request.error);
-                    if (panel != null) panel.ShowError("Нет связи с сервером: " + request.error);
+                    if (panel != null) panel.ShowReadError("Нет связи с API");
                 }
             }
 
@@ -107,7 +105,7 @@ public class CncJsonController : MonoBehaviour
         float z = GetCoordinate(data, "Z") * 0.001f;
 
         Debug.Log($"Координаты в метрах: X={x}, Y={y}, Z={z}");
-        if (panel != null) panel.ShowCoordinates(x, y, z, channel);
+        if (panel != null) panel.ShowCoordinatesMeters(x, y, z, channel);
         if (!applyMovement) return;
 
         // Оси станка X/Y/Z соответствуют осям Unity X/Z/Y.
