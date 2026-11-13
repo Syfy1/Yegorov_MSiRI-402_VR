@@ -6,6 +6,7 @@ public class CncCoordinatesPanel : MonoBehaviour
 {
     public TMP_Text axesText;
     public TMP_Text statusText;
+    public TMP_Text commandText;   // последняя команда с кнопок станка (можно не назначать)
 
     // Если ответов нет дольше этого времени, данные помечаются как неактуальные.
     public float staleAfter = 3f;
@@ -17,6 +18,7 @@ public class CncCoordinatesPanel : MonoBehaviour
     {
         axesText.text = "X: - мм\nY: - мм\nZ: - мм";
         statusText.text = "Ожидание ответа сервера";
+        ShowCommand("");
     }
 
     public void ShowCoordinates(float xMeters, float yMeters, float zMeters, int channel)
@@ -29,6 +31,12 @@ public class CncCoordinatesPanel : MonoBehaviour
         statusText.color = new Color(0.4f, 0.9f, 0.4f);
         lastSuccess = Time.unscaledTime;
         hasData = true;
+    }
+
+    public void ShowCommand(string message)
+    {
+        if (commandText != null)
+            commandText.text = message;
     }
 
     public void ShowError(string message)

@@ -24,18 +24,42 @@ public class CncJsonController : MonoBehaviour
     private Vector3 startX;
     private Vector3 startY;
     private Vector3 startZ;
+    private bool nodesReady;
+
+    // Кнопки «Пуск» и «Стоп» на станке: включают и выключают движение узлов.
+    // При остановке узлы возвращаются в исходное положение.
+    public void StartMovement()
+    {
+        if (!nodesReady) return;
+        applyMovement = true;
+        if (panel != null) panel.ShowCommand("Пуск: узлы следуют за координатами сервера");
+    }
+
+    public void StopMovement()
+    {
+        applyMovement = false;
+        if (nodesReady)
+        {
+            nodeX.localPosition = startX;
+            nodeY.localPosition = startY;
+            nodeZ.localPosition = startZ;
+        }
+        if (panel != null) panel.ShowCommand("Стоп: узлы в исходном положении");
+    }
 
     private IEnumerator Start()
     {
-        if (applyMovement)
-        {
-            if (nodeX == null || nodeY == null || nodeZ == null ||
-                nodeX == nodeY || nodeX == nodeZ || nodeY == nodeZ)
-            {
-                Debug.LogError("Назначьте три разных узла станка.");
-                yield break;
-            }
+        nodesReady = nodeX != null && nodeY != null && nodeZ != null &&
+                     nodeX != nodeY && nodeX != nodeZ && nodeY != nodeZ;
 
+        if (applyMovement && !nodesReady)
+        {
+            Debug.LogError("Назначьте три разных узла станка.");
+            yield break;
+        }
+
+        if (nodesReady)
+        {
             startX = nodeX.localPosition;
             startY = nodeY.localPosition;
             startZ = nodeZ.localPosition;
